@@ -1,0 +1,35 @@
+---
+kind: ClusterIssuer
+apiVersion: cert-manager.io/v1alpha2
+metadata:
+  name: local-ca-issuer
+spec:
+  ca:
+    # kubectl create secret tls --namespace cert-manager local-ca-keypair \
+    #   --key kubernetes/root.key --cert kubernetes/root.crt
+    secretName: local-ca-keypair
+
+---
+kind: Certificate
+apiVersion: cert-manager.io/v1alpha2
+metadata:
+  name: localhost-certificate
+spec:
+  secretName: localhost-certificate
+  issuerRef:
+    name: local-ca-issuer
+    kind: ClusterIssuer
+  organization:
+  - Alexander Zagaynov
+  dnsNames:
+  - "kubernetes.docker.internal"
+  - "*.svc.cluster.local"
+  - "svc.cluster.local"
+  - "kubernetes"
+  - "127.0.0.1"
+  - "localhost"
+  - "*.localhost"
+  - "127.0.0.1.nip.io"
+  - "*.127.0.0.1.nip.io"
+  ipAddresses:
+  - "127.0.0.1"
