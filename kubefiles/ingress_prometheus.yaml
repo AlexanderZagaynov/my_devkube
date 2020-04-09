@@ -1,0 +1,51 @@
+## kubectl create namespace prometheus
+## helm install prometheus-operator --namespace prometheus stable/prometheus-operator
+## TODO: yaml for https://github.com/helm/charts/tree/master/stable/prometheus-operator#kubeproxy
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1beta1
+metadata:
+  name: prometheus
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  rules:
+  - host: prometheus.localhost
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: prometheus-ui
+          servicePort: 9090
+  - host: grafana.localhost
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: grafana-ui
+          servicePort: 80
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus-ui
+spec:
+  type: ExternalName
+  externalName: prometheus-operator-prometheus.prometheus.svc.cluster.local
+  ports:
+  - port: 9090
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: grafana-ui
+spec:
+  type: ExternalName
+  externalName: prometheus-operator-grafana.prometheus.svc.cluster.local
+  ports:
+  - port: 80
